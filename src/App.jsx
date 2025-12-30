@@ -5,6 +5,22 @@ import SettingsModal from './components/SettingsModal';
 
 function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [names, setNames] = useState(() => {
+    try {
+      const saved = localStorage.getItem('dashboard_names');
+      return saved ? JSON.parse(saved) : { left: "Me", right: "Friend" };
+    } catch {
+      return { left: "Me", right: "Friend" };
+    }
+  });
+  const [editingName, setEditingName] = useState(null); // 'left' or 'right'
+
+  const saveName = (key, newName) => {
+    const updated = { ...names, [key]: newName };
+    setNames(updated);
+    localStorage.setItem('dashboard_names', JSON.stringify(updated));
+    setEditingName(null);
+  };
 
   return (
     <div className="min-h-screen p-4 md:p-8 flex flex-col gap-6">
@@ -25,8 +41,20 @@ function App() {
 
       {/* Main Grid: Side by Side on Desktop, Stacked on Mobile */}
       <main className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full flex-1">
-        <UserDashboard userName="Me" colorTheme="violet" />
-        <UserDashboard userName="Friend" colorTheme="emerald" />
+        <UserDashboard
+          userName={names.left}
+          colorTheme="violet"
+          onEditName={() => setEditingName('left')}
+          isEditing={editingName === 'left'}
+          onSaveName={(n) => saveName('left', n)}
+        />
+        <UserDashboard
+          userName={names.right}
+          colorTheme="emerald"
+          onEditName={() => setEditingName('right')}
+          isEditing={editingName === 'right'}
+          onSaveName={(n) => saveName('right', n)}
+        />
       </main>
 
       {isSettingsOpen && (

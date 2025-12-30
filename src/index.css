@@ -1,18 +1,24 @@
+@import "tailwindcss";
+
 :root {
   /* Premium Dark Theme Palette */
   --bg-primary: #0f172a;
   --bg-secondary: #1e293b;
   --bg-card: #1e293b;
   --bg-glass: rgba(30, 41, 59, 0.7);
-  
+
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
 
-  --accent-primary: #8b5cf6; /* Violet */
-  --accent-secondary: #10b981; /* Emerald */
-  --accent-danger: #ef4444; /* Red */
-  --accent-warning: #f59e0b; /* Amber */
+  --accent-primary: #8b5cf6;
+  /* Violet */
+  --accent-secondary: #10b981;
+  /* Emerald */
+  --accent-danger: #ef4444;
+  /* Red */
+  --accent-warning: #f59e0b;
+  /* Amber */
 
   /* Spacing & Radius */
   --radius-sm: 8px;
@@ -23,7 +29,7 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  
+
   /* Font Family - Using System for now, but feels premium when clean */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
@@ -46,15 +52,18 @@ body {
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary); 
+  background: var(--bg-primary);
 }
+
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-secondary); 
+  background: var(--bg-secondary);
   border-radius: var(--radius-full);
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted); 
+  background: var(--text-muted);
 }
 
 /* Utilities */
@@ -96,6 +105,7 @@ body {
   background: var(--accent-primary);
   color: white;
 }
+
 .btn-primary:hover {
   filter: brightness(1.1);
 }
@@ -105,7 +115,8 @@ body {
   border-radius: var(--radius-full);
 }
 
-input, textarea {
+input,
+textarea {
   background: var(--bg-primary);
   border: 1px solid var(--bg-secondary);
   color: var(--text-primary);
@@ -114,7 +125,9 @@ input, textarea {
   width: 100%;
   font-family: inherit;
 }
-input:focus, textarea:focus {
+
+input:focus,
+textarea:focus {
   outline: 2px solid var(--accent-primary);
   border-color: transparent;
 }
