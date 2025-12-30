@@ -3,19 +3,21 @@ import WidgetCard from './WidgetCard';
 import { Plus, Trash2, CheckCircle2, Circle, RefreshCw } from 'lucide-react';
 import { GoogleSheetService } from '../../services/GoogleSheetService';
 
-const TaskTracker = ({ colorTheme }) => {
+const TaskTracker = ({ dashboardId, colorTheme }) => {
     const [tasks, setTasks] = useState([]);
     const [newTask, setNewTask] = useState('');
 
+    const STORAGE_KEY = `tasks_${dashboardId}`;
+
     // Load local cache immediately
     useEffect(() => {
-        const saved = localStorage.getItem('tasks_cache');
+        const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) setTasks(JSON.parse(saved));
-    }, []);
+    }, [dashboardId]);
 
     const saveToCloud = (updatedTasks) => {
-        localStorage.setItem('tasks_cache', JSON.stringify(updatedTasks));
-        GoogleSheetService.sync('save_tasks', { tasks: updatedTasks });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTasks));
+        GoogleSheetService.saveByType(STORAGE_KEY, updatedTasks);
     };
 
     const addTask = (e) => {
