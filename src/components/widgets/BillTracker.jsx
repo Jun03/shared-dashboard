@@ -12,11 +12,21 @@ const BillTracker = ({ dashboardId, colorTheme }) => {
 
     const STORAGE_KEY = `bills_${dashboardId}`;
 
-    // Load from Local Storage initially (Sync happens in background or on load if we implement it)
-    // For now, let's keep local storage as "Primary" for speed, but sync to sheet
+    // Load local cache immediately, then sync from cloud
     useEffect(() => {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) setBills(JSON.parse(saved));
+        const loadData = async () => {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                setBills(JSON.parse(saved));
+            }
+            // Sync with cloud
+            const cloudData = await GoogleSheetService.fetchAll();
+            if (cloudData && cloudData[STORAGE_KEY]) {
+                setBills(cloudData[STORAGE_KEY]);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudData[STORAGE_KEY]));
+            }
+        };
+        loadData();
     }, [dashboardId]);
 
     const saveToCloud = (data) => {

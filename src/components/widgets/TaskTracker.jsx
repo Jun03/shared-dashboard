@@ -9,10 +9,23 @@ const TaskTracker = ({ dashboardId, colorTheme }) => {
 
     const STORAGE_KEY = `tasks_${dashboardId}`;
 
-    // Load local cache immediately
+    // Load local cache immediately, then sync from cloud
     useEffect(() => {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) setTasks(JSON.parse(saved));
+        const loadData = async () => {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                setTasks(JSON.parse(saved));
+            }
+
+            // Always fetch latest from cloud to ensure valid state
+            const cloudData = await GoogleSheetService.fetchAll();
+            if (cloudData && cloudData[STORAGE_KEY]) {
+                const cloudTasks = cloudData[STORAGE_KEY];
+                setTasks(cloudTasks);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudTasks));
+            }
+        };
+        loadData();
     }, [dashboardId]);
 
     const saveToCloud = (updatedTasks) => {

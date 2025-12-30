@@ -15,8 +15,17 @@ const HabitTracker = ({ dashboardId, colorTheme }) => {
     const STORAGE_KEY = `habits_${dashboardId}`;
 
     useEffect(() => {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) setHabits(JSON.parse(saved));
+        const loadData = async () => {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) setHabits(JSON.parse(saved));
+
+            const cloudData = await GoogleSheetService.fetchAll();
+            if (cloudData && cloudData[STORAGE_KEY]) {
+                setHabits(cloudData[STORAGE_KEY]);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudData[STORAGE_KEY]));
+            }
+        };
+        loadData();
     }, [dashboardId]);
 
     const saveToCloud = (data) => {

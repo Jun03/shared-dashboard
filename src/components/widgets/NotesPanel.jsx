@@ -16,16 +16,24 @@ const NotesPanel = ({ dashboardId, colorTheme }) => {
     const STORAGE_KEY_NOTE = `notes_${dashboardId}`;
 
     useEffect(() => {
-        const savedNote = localStorage.getItem(STORAGE_KEY_NOTE);
-        if (savedNote) setNote(savedNote);
+        const loadData = async () => {
+            const savedNote = localStorage.getItem(STORAGE_KEY_NOTE);
+            if (savedNote) setNote(savedNote);
+
+            const cloudData = await GoogleSheetService.fetchAll();
+            if (cloudData && cloudData[STORAGE_KEY_NOTE]) {
+                setNote(cloudData[STORAGE_KEY_NOTE]);
+                localStorage.setItem(STORAGE_KEY_NOTE, cloudData[STORAGE_KEY_NOTE]);
+            }
+        };
+        loadData();
     }, [dashboardId]);
 
     const handleNoteChange = (e) => {
         const val = e.target.value;
         setNote(val);
         localStorage.setItem(STORAGE_KEY_NOTE, val);
-        // Debounce this in real life, but for now direct call
-        // GoogleSheetService.saveByType(STORAGE_KEY_NOTE, val);
+        // Debounce logic would go here
     };
 
     // Note: Saving every keystroke to Google Sheet is bad.
