@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import UserDashboard from './components/UserDashboard';
-import { Settings } from 'lucide-react';
+import { Settings, RefreshCw } from 'lucide-react';
 import SettingsModal from './components/SettingsModal';
+import { GoogleSheetService } from './services/GoogleSheetService';
 
 function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -15,10 +16,27 @@ function App() {
   });
   const [editingName, setEditingName] = useState(null); // 'left' or 'right'
 
+  // Initial Load & Sync
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      setIsSyncing(true);
+      const data = await GoogleSheetService.fetchAll();
+      if (data && data.config_names) {
+        setNames(data.config_names);
+        localStorage.setItem('dashboard_names', JSON.stringify(data.config_names));
+      }
+      setIsSyncing(false);
+    };
+    fetchData();
+  }, [isSettingsOpen]); // Refresh when settings close (might have changed URL)
+
   const saveName = (key, newName) => {
     const updated = { ...names, [key]: newName };
     setNames(updated);
     localStorage.setItem('dashboard_names', JSON.stringify(updated));
+    GoogleSheetService.saveByType('config_names', updated);
     setEditingName(null);
   };
 
@@ -33,9 +51,10 @@ function App() {
         </div>
         <button
           onClick={() => setIsSettingsOpen(true)}
-          className="btn btn-icon bg-slate-800 hover:bg-slate-700"
+          className="btn btn-icon bg-slate-800 hover:bg-slate-700 relative"
         >
           <Settings size={20} />
+          {isSyncing && <span className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full animate-pulse border-2 border-slate-900"></span>}
         </button>
       </header>
 
