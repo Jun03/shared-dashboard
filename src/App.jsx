@@ -42,6 +42,7 @@ function App() {
       {/* Main Grid: Side by Side on Desktop, Stacked on Mobile */}
       <main className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full flex-1">
         <UserDashboard
+          dashboardId="left"
           userName={names.left}
           colorTheme="violet"
           onEditName={() => setEditingName('left')}
@@ -49,6 +50,7 @@ function App() {
           onSaveName={(n) => saveName('left', n)}
         />
         <UserDashboard
+          dashboardId="right"
           userName={names.right}
           colorTheme="emerald"
           onEditName={() => setEditingName('right')}

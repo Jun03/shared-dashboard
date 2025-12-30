@@ -1,18 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import WidgetCard from './WidgetCard';
 import { Plus, X } from 'lucide-react';
 import { format } from 'date-fns';
 
-const BillTracker = ({ colorTheme }) => {
-    const [bills, setBills] = useState([
-        { id: 1, name: 'Rent', amount: 15000, due: '2025-01-01', paid: false },
-        { id: 2, name: 'Internet', amount: 1200, due: '2025-01-15', paid: true },
-    ]);
+import { GoogleSheetService } from '../../services/GoogleSheetService';
+
+const BillTracker = ({ dashboardId, colorTheme }) => {
+    const [bills, setBills] = useState([]);
     const [isAdding, setIsAdding] = useState(false);
     const [newBill, setNewBill] = useState({ name: '', amount: '', due: '' });
 
+    const STORAGE_KEY = `bills_${dashboardId}`;
+
+    // Load from Local Storage initially (Sync happens in background or on load if we implement it)
+    // For now, let's keep local storage as "Primary" for speed, but sync to sheet
+    useEffect(() => {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) setBills(JSON.parse(saved));
+    }, [dashboardId]);
+
+    const saveToCloud = (data) => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        GoogleSheetService.saveByType(STORAGE_KEY, data);
+    };
+
     const togglePaid = (id) => {
-        setBills(bills.map(b => b.id === id ? { ...b, paid: !b.paid } : b));
+        const updated = bills.map(b => b.id === id ? { ...b, paid: !b.paid } : b);
+        setBills(updated);
+        saveToCloud(updated);
     };
 
     const statusColor = (paid) => paid
@@ -22,7 +37,9 @@ const BillTracker = ({ colorTheme }) => {
     const handleAdd = (e) => {
         e.preventDefault();
         if (!newBill.name || !newBill.amount) return;
-        setBills([...bills, { ...newBill, id: Date.now(), paid: false }]);
+        const updated = [...bills, { ...newBill, id: Date.now(), paid: false }];
+        setBills(updated);
+        saveToCloud(updated);
         setNewBill({ name: '', amount: '', due: '' });
         setIsAdding(false);
     };

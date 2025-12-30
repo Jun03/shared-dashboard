@@ -1,15 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import WidgetCard from './WidgetCard';
 import { ExternalLink } from 'lucide-react';
 
-const NotesPanel = ({ colorTheme }) => {
+import { GoogleSheetService } from '../../services/GoogleSheetService';
+
+const NotesPanel = ({ dashboardId, colorTheme }) => {
     const [activeTab, setActiveTab] = useState('notes'); // 'notes' or 'links'
     const [note, setNote] = useState('Grocery list:\n- Milk\n- Eggs\n\nIdeas:\n- New project theme?');
 
-    const [links] = useState([
+    const [links, setLinks] = useState([
         { id: 1, title: 'Design Inspiration', url: 'https://dribbble.com' },
         { id: 2, title: 'React Docs', url: 'https://react.dev' },
     ]);
+
+    const STORAGE_KEY_NOTE = `notes_${dashboardId}`;
+
+    useEffect(() => {
+        const savedNote = localStorage.getItem(STORAGE_KEY_NOTE);
+        if (savedNote) setNote(savedNote);
+    }, [dashboardId]);
+
+    const handleNoteChange = (e) => {
+        const val = e.target.value;
+        setNote(val);
+        localStorage.setItem(STORAGE_KEY_NOTE, val);
+        // Debounce this in real life, but for now direct call
+        // GoogleSheetService.saveByType(STORAGE_KEY_NOTE, val);
+    };
+
+    // Note: Saving every keystroke to Google Sheet is bad.
+    // We'll add a "Save" button or save on blur.
+    const saveNoteToCloud = () => {
+        GoogleSheetService.saveByType(STORAGE_KEY_NOTE, note);
+    };
 
     const activeClass = colorTheme === 'violet' ? 'text-violet-400 border-violet-400' : 'text-emerald-400 border-emerald-400';
 

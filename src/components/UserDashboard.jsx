@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { Edit2, Check } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-const UserDashboard = ({ userName, colorTheme, onEditName, isEditing, onSaveName }) => {
+const UserDashboard = ({ dashboardId, userName, colorTheme, onEditName, isEditing, onSaveName }) => {
     // Dynamic border color based on theme
     const borderColor = colorTheme === 'violet' ? 'border-violet-500/20' : 'border-emerald-500/20';
     const shadowColor = colorTheme === 'violet' ? 'shadow-violet-500/5' : 'shadow-emerald-500/5';
@@ -50,14 +50,14 @@ const UserDashboard = ({ userName, colorTheme, onEditName, isEditing, onSaveName
             <div className="flex flex-col gap-6 overflow-y-auto pr-2 custom-scrollbar">
                 {/* Top Section: Habits & Tasks */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <HabitTracker colorTheme={colorTheme} />
-                    <TaskTracker colorTheme={colorTheme} />
+                    <HabitTracker dashboardId={dashboardId} colorTheme={colorTheme} />
+                    <TaskTracker dashboardId={dashboardId} colorTheme={colorTheme} />
                 </div>
 
                 {/* Bottom Section: Bills & Notes */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <BillTracker colorTheme={colorTheme} />
-                    <NotesPanel colorTheme={colorTheme} />
+                    <BillTracker dashboardId={dashboardId} colorTheme={colorTheme} />
+                    <NotesPanel dashboardId={dashboardId} colorTheme={colorTheme} />
                 </div>
             </div>
         </motion.div>

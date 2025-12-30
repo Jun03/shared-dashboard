@@ -1,30 +1,27 @@
 export const GoogleSheetService = {
     getUrl: () => localStorage.getItem('sheet_url'),
 
-    async sync(action, payload = {}) {
+    // Save specific widget data (e.g. type="tasks_left")
+    async saveByType(type, data) {
         const url = this.getUrl();
-        if (!url) {
-            console.warn('Google Sheet URL not set in Settings');
-            return null;
-        }
+        if (!url) return false;
 
         try {
-            const response = await fetch(url, {
+            await fetch(url, {
                 method: 'POST',
-                mode: 'no-cors', // standard for Google Apps Script Web Apps
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ action, ...payload }),
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'save', type, data }),
             });
-            // specific to no-cors: we can't read response, so we optimistically return true
             return true;
         } catch (error) {
-            console.error('Sync failed:', error);
+            console.error(`Save failed for ${type}:`, error);
             return false;
         }
     },
 
+
+    // Fetch all data and return as a map: { "tasks_left": [...], "bills_right": [...] }
     async fetchAll() {
         const url = this.getUrl();
         if (!url) return null;
@@ -32,6 +29,7 @@ export const GoogleSheetService = {
         try {
             const response = await fetch(url);
             const data = await response.json();
+            // The new script returns an object { "key": [data] } directly
             return data;
         } catch (error) {
             console.error('Fetch failed:', error);

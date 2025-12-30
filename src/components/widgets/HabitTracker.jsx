@@ -1,19 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import WidgetCard from './WidgetCard';
 import { Check } from 'lucide-react';
 import { format, subDays } from 'date-fns';
 
-const HabitTracker = ({ colorTheme }) => {
+import { GoogleSheetService } from '../../services/GoogleSheetService';
+
+const HabitTracker = ({ dashboardId, colorTheme }) => {
     const [habits, setHabits] = useState([
         { id: 1, name: 'Read 30m', history: { '2023-10-27': true } },
         { id: 2, name: 'Workout', history: {} },
         { id: 3, name: 'Water 2L', history: {} },
     ]);
 
+    const STORAGE_KEY = `habits_${dashboardId}`;
+
+    useEffect(() => {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) setHabits(JSON.parse(saved));
+    }, [dashboardId]);
+
+    const saveToCloud = (data) => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        GoogleSheetService.saveByType(STORAGE_KEY, data);
+    };
+
     const days = Array.from({ length: 5 }).map((_, i) => subDays(new Date(), 4 - i));
 
     const toggleHabit = (habitId, dateStr) => {
-        setHabits(prev => prev.map(h => {
+        const updated = habits.map(h => {
             if (h.id === habitId) {
                 const newHistory = { ...h.history };
                 if (newHistory[dateStr]) delete newHistory[dateStr];
@@ -21,7 +35,9 @@ const HabitTracker = ({ colorTheme }) => {
                 return { ...h, history: newHistory };
             }
             return h;
-        }));
+        });
+        setHabits(updated);
+        saveToCloud(updated);
     };
 
     const accentColor = colorTheme === 'violet' ? 'bg-violet-500' : 'bg-emerald-500';
